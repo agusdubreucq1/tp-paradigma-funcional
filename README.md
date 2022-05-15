@@ -2,7 +2,7 @@
 
 Integrantes:
 
-- **Completar con nombre y apellido**
+- Ernestina Geraldine Kerbs
 - **Completar con nombre y apellido**
 - **Completar con nombre y apellido**
 - **Completar con nombre y apellido**
