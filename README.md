@@ -3,7 +3,7 @@
 Integrantes:
 
 - Ernestina Geraldine Kerbs
-- **Completar con nombre y apellido**
+- Agustin Dubreucq
 - **Completar con nombre y apellido**
 - **Completar con nombre y apellido**
 
