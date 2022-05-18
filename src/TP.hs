@@ -122,15 +122,19 @@ type TablaDePosiciones = [InfoPuesto]
 
 
 simularCarrera:: Carrera->[Evento]->TablaDePosiciones
-simularCarrera carrera = (ordenarPor posicion) . crearTabla . finalCarrera carrera
+simularCarrera carreraInicial = (ordenarPor posicion) . crearTabla . finalCarrera carreraInicial
 
 ------extra
 finalCarrera :: Carrera->[Evento]->Carrera
 finalCarrera carrera [] = carrera
-finalCarrera carrera lista = last lista (finalCarrera carrera (init lista))
+finalCarrera carrera listaEventos = last listaEventos (finalCarrera carrera (init listaEventos))
+{-partiendo del estado de carreraInicial (parámetro carrera), aplica los eventos de manera sucesiva 
+llegando al estado de finalCarrera-}
 
 crearTabla:: Carrera -> TablaDePosiciones
 crearTabla carrera = map (infoPuestoSegunAuto carrera) (autos carrera)
+{-recibe por parámetro el estado de una carrera y devuelve una lista de tipos de dato 
+InfoPuesto (posicion y color de cada auto)-}
 
 infoPuestoSegunAuto:: Carrera -> Auto -> InfoPuesto
 infoPuestoSegunAuto carrera auto = InfoPuesto (puesto auto carrera) (color auto)
@@ -140,14 +144,55 @@ infoPuestoSegunAuto carrera auto = InfoPuesto (puesto auto carrera) (color auto)
 correnTodos:: Int -> Evento
 correnTodos tiempo = Carrera . map (correrDurante tiempo) . autos
 
+{-///////////////////////////////////////////////////////////////////////////////-}
 usaPowerUp:: PowerUp -> Color -> Evento
 usaPowerUp power color_auto carrera = Carrera (flip power carrera (autoSegunColor color_auto carrera))
+
+{-Ya existe la funcion aplicarPowerUp-}
+{-aplicarPowerUp::PowerUp->Auto->Carrera->Carrera
+aplicarPowerUp funcionPowerUp autoTrigger carrera = Carrera (funcionPowerUp autoTrigger carrera)-}
+
+--segunda opcion:
+usaPowerUp':: PowerUp -> Color -> Evento
+usaPowerUp' power color_auto carrera = aplicarPowerUp power (autoSegunColor color_auto carrera) carrera
+
+{-///////////////////////////////////////////////////////////////////////////////-}
+
 
 -----extra 2
 autoSegunColor:: Color -> Carrera -> Auto
 autoSegunColor color_auto = head.filter ((color_auto == ). color) . autos
 -----------
+{-----------------------------------------------}
 
+
+{--------------------PARTE 5--------------------}
+misilTeledirigido::Color->PowerUp
+misilTeledirigido colorAuto autoTrigger carrera
+  | velocidad (autoSegunColor colorAuto carrera) < 50 = golpeMisil (autoSegunColor colorAuto carrera) autoTrigger .
+                                                        afectarALosQueCumplen (==autoSegunColor colorAuto carrera) 
+                                                        (alterarVelocidad modificarVelocidad 10) . autos $ carrera
+  | otherwise = autos carrera
+ 
+-----extra 
+modificarVelocidad::Int->Int->Int
+modificarVelocidad _ nuevaVelocidad = nuevaVelocidad
+
+{-Requiero de esta funcion con este tipado para que "encaje" con el tipado de la funcion alterarVelocidad.
+El primer parámetro de "modificarVelocidad" lo descarto ya que la funcion "alterarVelocidad" me envía la velocidad actual del auto en cuestion.
+Para esta funcion ese dato no es relevante, pero para otras sí, por eso no modifico "alterarVelocidad"-}
+----------
+-----extra 2
+golpeMisil::Auto->Auto->[Auto]->[Auto]
+golpeMisil autoGolpeado autoTrigger autosCarrera
+ |vaGanando autoGolpeado autoTrigger = afectarALosQueCumplen ((==color autoGolpeado).color) (alterarDistancia 5) autosCarrera
+ |otherwise = autosCarrera
+
+{-Incrementa distancia del autoGolpeado sólo si este le va ganando al que le envió el misil-}
+------------
+{-----------------------------------------------}
+
+{--------------------PRUEBAS--------------------}
 -----para las pruebas
 autoA = Auto "rojo" 120 0
 autoB= Auto "blanco" 120 0
@@ -155,5 +200,38 @@ autoC = Auto "azul" 120 0
 autoD = Auto "negro" 120 0
 carrera1 = Carrera [autoA, autoB, autoC, autoD]
 
---simularCarrera carrera1 [correnTodos 30, usaPowerUp (jetpack 3) "azul", usaPowerUp terremoto "blanco", correnTodos 40,
---usaPowerUp (miguelitos 20) "blanco", usaPowerUp (jetpack 6) "negro", correnTodos 10] 
+{-simularCarrera carrera1 [correnTodos 30, usaPowerUp (jetpack 3) "azul", usaPowerUp terremoto "blanco", correnTodos 40,usaPowerUp (miguelitos 20) "blanco", usaPowerUp (jetpack 6) "negro", correnTodos 10] -}
+--prueba con funcion usaPowerUp'
+{-simularCarrera carrera1 [correnTodos 30, usaPowerUp' (jetpack 3) "azul", usaPowerUp' terremoto "blanco", correnTodos 40,usaPowerUp' (miguelitos 20) "blanco", usaPowerUp' (jetpack 6) "negro", correnTodos 10]-}
+
+--PRUEBA powerUp: misilTeledirigido
+
+carrera2 = Carrera [autoA, autoB, autoC, autoD, autoE]
+autoE = Auto "naranja" 30 20
+--aplicarPowerUp (misilTeledirigido "naranja") autoA carrera2
+{-Retornó el siguiente resultado:
+Carrera {autos = [Auto {color = "naranja", velocidad = 10, distancia = 12},Auto {color = "rojo", velocidad = 120, distancia = 0},
+Auto {color = "blanco", velocidad = 120, distancia = 0},Auto {color = "azul", velocidad = 120, distancia = 0},
+Auto {color = "negro", velocidad = 120, distancia = 0}]}-}
+
+
+carrera3 = Carrera [autoE, autoF]
+autoF = Auto "violeta" 45 15
+--aplicarPowerUp (misilTeledirigido "naranja") autoF carrera3
+{-Retornó el siguiente resultado:
+Carrera {autos = [Auto {color = "naranja", velocidad = 10, distancia = 25},Auto {color = "violeta", velocidad = 45, distancia = 15}]}
+-}
+
+{-----------------------------------------------}
+
+{-------------------RESPUESTA-------------------}
+
+{-a. ¿La solución desarrollada hasta este punto permite agregar el nuevo power up o sería necesario
+cambiar algo de lo desarrollado en los puntos anteriores? Justificar.
+
+Se pudo implementar un nuevo power up sin necesidad de modificar la solucion desarrollada hasta ese punto.
+Se adaptaron las nuevas funciones a la estructura ya establecida como en el caso de uso de la funcion "alterarVelocidad" 
+
+-}
+
+{-----------------------------------------------}
