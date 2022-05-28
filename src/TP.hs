@@ -125,11 +125,18 @@ simularCarrera:: Carrera->[Evento]->TablaDePosiciones
 simularCarrera carreraInicial = (ordenarPor posicion) . crearTabla . finalCarrera carreraInicial
 
 ------extra
+{-ANULADO
 finalCarrera :: Carrera->[Evento]->Carrera
 finalCarrera carrera [] = carrera
-finalCarrera carrera listaEventos = last listaEventos (finalCarrera carrera (init listaEventos))
-{-partiendo del estado de carreraInicial (parámetro carrera), aplica los eventos de manera sucesiva 
+finalCarrera carrera listaEventos = last listaEventos (finalCarrera carrera (init listaEventos))-}
+
+finalCarrera :: Carrera->[Evento]->Carrera
+finalCarrera carrera listaEventos = foldl ocurreEvento carrera listaEventos
+{-partiendo del estado de carreraInicial (parámetro carrera), aplica los eventos de manera sucesiva
 llegando al estado de finalCarrera-}
+
+ocurreEvento:: Carrera->Evento->Carrera
+ocurreEvento carrera evento = evento carrera
 
 crearTabla:: Carrera -> TablaDePosiciones
 crearTabla carrera = map (infoPuestoSegunAuto carrera) (autos carrera)
@@ -210,9 +217,8 @@ carrera2 = Carrera [autoA, autoB, autoC, autoD, autoE]
 autoE = Auto "naranja" 30 20
 --aplicarPowerUp (misilTeledirigido "naranja") autoA carrera2
 {-Retornó el siguiente resultado:
-Carrera {autos = [Auto {color = "naranja", velocidad = 10, distancia = 12},Auto {color = "rojo", velocidad = 120, distancia = 0},
-Auto {color = "blanco", velocidad = 120, distancia = 0},Auto {color = "azul", velocidad = 120, distancia = 0},
-Auto {color = "negro", velocidad = 120, distancia = 0}]}-}
+Carrera {autos = [Auto {color = "naranja", velocidad = 10, distancia = 25},Auto {color = "rojo", velocidad = 120, distancia = 0},Auto {color = "blanco", velocidad = 
+120, distancia = 0},Auto {color = "azul", velocidad = 120, distancia = 0},Auto {color = "negro", velocidad = 120, distancia = 0}]}-}
 
 
 carrera3 = Carrera [autoE, autoF]
