@@ -47,7 +47,7 @@ distanciaEntre auto1 = abs.(distancia auto1-).distancia
 ---------
 
 vaTranquilo::Auto->Carrera->Bool
-vaTranquilo elAuto carrera = (all (estaCerca elAuto) (autos carrera)) && (all (vaGanando elAuto) (autos carrera))
+vaTranquilo elAuto carrera = not(all (estaCerca elAuto) (autos carrera)) && (all (vaGanando elAuto) (autos carrera))
 
 --extra 2
 vaGanando::Auto->Auto->Bool
@@ -55,11 +55,9 @@ vaGanando auto1 = (distancia auto1>).distancia
 ---------
 
 puesto::Auto->Carrera->Int
---puesto elAuto carrera = 1 + length (autos carrera) - length (filter (vaGanando elAuto) (autos carrera))
-puesto elAuto carrera = length (filter (not.(vaGanando elAuto)) (autos carrera))
-{-puesto elAuto carrera = 1 + length (filter (not.(vaGanando elAuto)) (autos carrera))
-no sirve-}
-{-SOLUCION: cantidad total de autos - cantidad de autoas a los elAuto les va ganando-}
+puesto elAuto carrera = (1 +).length.flip(filter) (autos carrera).flip vaGanando $ elAuto
+{-se arma una lista de todos los autos que le van ganando a elAauto, y a esa cantidad se le suma 1 para obtener el
+puesto del elAuto-}
 
 {-----------------------------------------------}
 
