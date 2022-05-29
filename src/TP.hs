@@ -66,13 +66,17 @@ puesto del elAuto-}
 correrDurante::Int->Auto->Auto
 correrDurante tiempo unAuto = unAuto {distancia = distancia unAuto + tiempo*(velocidad unAuto)} 
 
-alterarVelocidad::(Int->Int->Int)->Int->Auto->Auto
-alterarVelocidad funcion cantidad unAuto = unAuto {velocidad = funcion (velocidad unAuto) cantidad}
+type Cantidad = Int
+type ModificadorVelocidad = Int->Int
 
-bajarVelocidad::Int->Int->Int
-bajarVelocidad velocidadActual cantidad 
-  |velocidadActual>cantidad = velocidadActual - cantidad
-  |otherwise = 0
+alterarVelocidad::ModificadorVelocidad->Auto->Auto
+alterarVelocidad modificador unAuto = unAuto {velocidad = modificador (velocidad unAuto)}
+
+bajarVelocidad::Cantidad->Auto->Auto
+bajarVelocidad cantidad unAuto
+  |velocidad(unAuto)>cantidad = alterarVelocidad (\_->velocidad(unAuto)-cantidad) unAuto
+  |otherwise = alterarVelocidad (\_->0) unAuto
+
 {-----------------------------------------------}
 
 {--------------------PARTE 3--------------------}
@@ -83,22 +87,23 @@ aplicarPowerUp::PowerUp->Auto->Carrera->Carrera
 aplicarPowerUp funcionPowerUp autoTrigger carrera = Carrera (funcionPowerUp autoTrigger carrera)
 
 terremoto::PowerUp
-terremoto autoTrigger = afectarALosQueCumplen (estaCerca autoTrigger) (alterarVelocidad (bajarVelocidad) 50).autos
+terremoto autoTrigger = afectarALosQueCumplen (estaCerca autoTrigger) (bajarVelocidad 50).autos
 
 miguelitos::Int->PowerUp
 miguelitos cantidadABajar autoTrigger = (afectarALosQueCumplen (vaGanando autoTrigger)
-                                         (alterarVelocidad bajarVelocidad cantidadABajar)).autos 
+                                         (bajarVelocidad cantidadABajar)).autos 
 
 jetpack::Tiempo->PowerUp
 jetpack tiempo autoTrigger carrera = afectarALosQueCumplen (==autoTrigger) 
-                                    (alterarDistancia (bonusJetpack autoTrigger (velocidad autoTrigger) tiempo))
+                                    (flip(bonusJetpack) tiempo)
                                     (autos carrera)
 --extra 3                                 
-type Velocidad=Int
 type Tiempo = Int
 type Distancia = Int
-bonusJetpack::Auto->Velocidad->Tiempo->Distancia
-bonusJetpack autoAfectado aumentoVelocidad tiempo = ((velocidad autoAfectado)+aumentoVelocidad)*tiempo
+bonusJetpack::Auto->Tiempo->Auto
+bonusJetpack autoAfectado tiempo = alterarVelocidad (\_->velocidad(autoAfectado)) .
+                                    correrDurante tiempo .          
+                                      alterarVelocidad (\_->2*(velocidad autoAfectado)) $ autoAfectado
 
 alterarDistancia::Distancia->Auto->Auto
 alterarDistancia distanciaAgregada unAuto = unAuto {distancia = distancia unAuto + distanciaAgregada}
@@ -176,16 +181,16 @@ misilTeledirigido::Color->PowerUp
 misilTeledirigido colorAuto autoTrigger carrera
   | velocidad (autoSegunColor colorAuto carrera) < 50 = golpeMisil (autoSegunColor colorAuto carrera) autoTrigger .
                                                         afectarALosQueCumplen (==autoSegunColor colorAuto carrera) 
-                                                        (alterarVelocidad modificarVelocidad 10) . autos $ carrera
+                                                        (alterarVelocidad (modificarVelocidad 10)) . autos $ carrera
   | otherwise = autos carrera
  
 -----extra 
-modificarVelocidad::Int->Int->Int
-modificarVelocidad _ nuevaVelocidad = nuevaVelocidad
+modificarVelocidad::Cantidad->ModificadorVelocidad
+modificarVelocidad nuevaVelocidad _  = nuevaVelocidad
 
-{-Requiero de esta funcion con este tipado para que "encaje" con el tipado de la funcion alterarVelocidad.
-El primer parámetro de "modificarVelocidad" lo descarto ya que la funcion "alterarVelocidad" me envía la velocidad actual del auto en cuestion.
-Para esta funcion ese dato no es relevante, pero para otras sí, por eso no modifico "alterarVelocidad"-}
+{-equivalente a usar (\_->cantidadDeterminada)-}
+
+{-modifico la velocidad con la cantidad indicada independientemente de la velocidad actual del auto-}
 ----------
 -----extra 2
 golpeMisil::Auto->Auto->[Auto]->[Auto]
