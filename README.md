@@ -4,7 +4,8 @@ Integrantes:
 
 - Ernestina Geraldine Kerbs
 - Agustin Dubreucq
-- **Completar con nombre y apellido**
+- Nicolas Klaver
+- Jasson Morales Rodriguez
 - **Completar con nombre y apellido**
 
 ## Consignas

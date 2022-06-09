@@ -45,9 +45,13 @@ distintoDe elemento1 = not.(elemento1 ==)
 distanciaEntre::Auto->Auto->Int
 distanciaEntre auto1 = abs.(distancia auto1-).distancia
 ---------
+{--opciones nuevas--}
+vaTranquilo'::Auto->Carrera->Bool
+vaTranquilo' elAuto carrera = (all (not . estaCerca elAuto) (autos carrera)) && (all (vaGanando elAuto) (todosMenosEse elAuto (autos carrera)))
+{--opciones nuevas--}
 
 vaTranquilo::Auto->Carrera->Bool
-vaTranquilo elAuto carrera = (all (not . estaCerca elAuto) (autos carrera)) && (all (vaGanando elAuto) (todosMenosEse elAuto (autos carrera)))
+vaTranquilo elAuto carrera = not(all (estaCerca elAuto) (autos carrera)) && (all (vaGanando elAuto) (autos carrera))
 
 --extra 2
 todosMenosEse :: Eq a => a -> [a] -> [a]
@@ -56,14 +60,15 @@ todosMenosEse este = filter (distintoDe este)
 vaGanando::Auto->Auto->Bool
 vaGanando auto1= (distancia auto1>).distancia
 ---------
+{--opciones nuevas--}
+puesto'::Auto->Carrera->Int
+puesto' elAuto = (+1).length . filter (flip vaGanando elAuto) . autos 
+{--opciones nuevas--}
 
 puesto::Auto->Carrera->Int
---puesto elAuto carrera = 1 + length (autos carrera) - length (filter (vaGanando elAuto) (autos carrera))
---puesto elAuto carrera = length (filter (not.(vaGanando elAuto)) (autos carrera))
-puesto elAuto = (+1).length . filter (flip vaGanando elAuto) . autos 
-{-puesto elAuto carrera = 1 + length (filter (not.(vaGanando elAuto)) (autos carrera))
-no sirve-}
-{-SOLUCION: cantidad total de autos - cantidad de autoas a los elAuto les va ganando-}
+puesto elAuto carrera = (1 +).length.flip(filter) (autos carrera).flip vaGanando $ elAuto
+{-se arma una lista de todos los autos que le van ganando a elAauto, y a esa cantidad se le suma 1 para obtener el
+puesto del elAuto-}
 
 {-----------------------------------------------}
 
@@ -72,19 +77,22 @@ no sirve-}
 correrDurante::Int->Auto->Auto
 correrDurante tiempo unAuto = unAuto {distancia = distancia unAuto + tiempo*(velocidad unAuto)} 
 
---alterarVelocidad::(Int->Int->Int)->Int->Auto->Auto
---alterarVelocidad funcion cantidad unAuto = unAuto {velocidad = funcion (velocidad unAuto) cantidad}
+{--opciones nuevas--}
 
-alterarVelocidad::(Int->Int) ->Auto->Auto
-alterarVelocidad modificador unAuto = unAuto {velocidad = max 0 (modificador (velocidad unAuto))}
+bajarVelocidad'::Int -> Auto -> Auto
+bajarVelocidad' valor = alterarVelocidad ((-)valor)
+{--opciones nuevas--}
 
---bajarVelocidad::Int->Int->Int
---bajarVelocidad velocidadActual cantidad 
- -- |velocidadActual>cantidad = velocidadActual - cantidad
---  |otherwise = 0
+type Cantidad = Int
+type ModificadorVelocidad = Int->Int
 
-bajarVelocidad::Int -> Auto -> Auto
-bajarVelocidad valor = alterarVelocidad ((-)valor)
+alterarVelocidad::ModificadorVelocidad->Auto->Auto
+alterarVelocidad modificador unAuto = unAuto {velocidad = modificador (velocidad unAuto)}
+
+bajarVelocidad::Cantidad->Auto->Auto
+bajarVelocidad cantidad unAuto
+  |velocidad(unAuto)>cantidad = alterarVelocidad (\_->velocidad(unAuto)-cantidad) unAuto
+  |otherwise = alterarVelocidad (\_->0) unAuto
 
 {-----------------------------------------------}
 
@@ -102,21 +110,23 @@ miguelitos::Int->PowerUp
 miguelitos cantidadABajar autoTrigger = (afectarALosQueCumplen (vaGanando autoTrigger)
                                          (bajarVelocidad cantidadABajar)).autos 
 
-{--jetpack::Tiempo->PowerUp
-jetpack tiempo autoTrigger carrera = afectarALosQueCumplen (==autoTrigger) 
-                                    (alterarDistancia (bonusJetpack autoTrigger (velocidad autoTrigger) tiempo))
-                                    (autos carrera)--}
-
 jetpack::Tiempo->PowerUp
 jetpack tiempo autoTrigger carrera = afectarALosQueCumplen (==autoTrigger) 
-                                    (alterarVelocidad (`div` 2) . correrDurante tiempo . alterarVelocidad (*2))
+                                    (flip(bonusJetpack) tiempo)
                                     (autos carrera)
+{--opciones nuevas--}
+jetpack'::Tiempo->PowerUp
+jetpack' tiempo autoTrigger = afectarALosQueCumplen (==autoTrigger) 
+                                    (alterarVelocidad (`div` 2) . correrDurante tiempo . alterarVelocidad (*2)) . autos
+{--opciones nuevas--}
+
 --extra 3                                 
-type Velocidad=Int
 type Tiempo = Int
 type Distancia = Int
-bonusJetpack::Auto->Velocidad->Tiempo->Distancia
-bonusJetpack autoAfectado aumentoVelocidad tiempo = ((velocidad autoAfectado)+aumentoVelocidad)*tiempo
+bonusJetpack::Auto->Tiempo->Auto
+bonusJetpack autoAfectado tiempo = alterarVelocidad (\_->velocidad(autoAfectado)) .
+                                    correrDurante tiempo .          
+                                      alterarVelocidad (\_->2*(velocidad autoAfectado)) $ autoAfectado
 
 alterarDistancia::Distancia->Auto->Auto
 alterarDistancia distanciaAgregada unAuto = unAuto {distancia = distancia unAuto + distanciaAgregada}
@@ -141,11 +151,18 @@ simularCarrera:: Carrera->[Evento]->TablaDePosiciones
 simularCarrera carreraInicial = (ordenarPor posicion) . crearTabla . finalCarrera carreraInicial
 
 ------extra
+{-ANULADO
 finalCarrera :: Carrera->[Evento]->Carrera
 finalCarrera carrera [] = carrera
-finalCarrera carrera listaEventos = last listaEventos (finalCarrera carrera (init listaEventos))
-{-partiendo del estado de carreraInicial (parámetro carrera), aplica los eventos de manera sucesiva 
+finalCarrera carrera listaEventos = last listaEventos (finalCarrera carrera (init listaEventos))-}
+
+finalCarrera :: Carrera->[Evento]->Carrera
+finalCarrera carrera listaEventos = foldl ocurreEvento carrera listaEventos
+{-partiendo del estado de carreraInicial (parámetro carrera), aplica los eventos de manera sucesiva
 llegando al estado de finalCarrera-}
+
+ocurreEvento:: Carrera->Evento->Carrera
+ocurreEvento carrera evento = evento carrera
 
 crearTabla:: Carrera -> TablaDePosiciones
 crearTabla carrera = map (infoPuestoSegunAuto carrera) (autos carrera)
@@ -198,29 +215,16 @@ misilTeledirigido::Color->PowerUp
 misilTeledirigido colorAuto autoTrigger carrera
   | velocidad (autoSegunColor colorAuto carrera) < 50 = golpeMisil (autoSegunColor colorAuto carrera) autoTrigger .
                                                         afectarALosQueCumplen (==autoSegunColor colorAuto carrera) 
-                                                        (dejarVelocidadEn 10) . autos $ carrera
+                                                        (alterarVelocidad (modificarVelocidad 10)) . autos $ carrera
   | otherwise = autos carrera
-
-dejarVelocidadEn :: Int -> Auto -> Auto
-dejarVelocidadEn valor auto = auto {velocidad = valor}
-
-{-Requiero de esta funcion con este tipado para que "encaje" con el tipado de la funcion alterarVelocidad.
-El primer parámetro de "modificarVelocidad" lo descarto ya que la funcion "alterarVelocidad" me envía la velocidad actual del auto en cuestion.
-Para esta funcion ese dato no es relevante, pero para otras sí, por eso no modifico "alterarVelocidad"-}
-
-{----------otra opcion-----
-misilTeledirigido'::Color->PowerUp
-misilTeledirigido' colorAuto autoTrigger carrera
-  | velocidad (autoSegunColor colorAuto carrera) < 50 = golpeMisil (autoSegunColor colorAuto carrera) autoTrigger .
-                                                        afectarALosQueCumplen (==autoSegunColor colorAuto carrera) 
-                                                        (alterarVelocidad modificarVelocidad 10) . autos $ carrera
-  | otherwise = autos carrera
- -}
+ 
 -----extra 
---llegar
---modificarVelocidad _ nuevaVelocidad = nuevaVelocidad
+modificarVelocidad::Cantidad->ModificadorVelocidad
+modificarVelocidad nuevaVelocidad _  = nuevaVelocidad
 
-{----------otra opcion------}
+{-equivalente a usar (\_->cantidadDeterminada)-}
+
+{-modifico la velocidad con la cantidad indicada independientemente de la velocidad actual del auto-}
 ----------
 -----extra 2
 golpeMisil::Auto->Auto->[Auto]->[Auto]
@@ -250,9 +254,8 @@ carrera2 = Carrera [autoA, autoB, autoC, autoD, autoE]
 autoE = Auto "naranja" 30 20
 --aplicarPowerUp (misilTeledirigido "naranja") autoA carrera2
 {-Retornó el siguiente resultado:
-Carrera {autos = [Auto {color = "naranja", velocidad = 10, distancia = 12},Auto {color = "rojo", velocidad = 120, distancia = 0},
-Auto {color = "blanco", velocidad = 120, distancia = 0},Auto {color = "azul", velocidad = 120, distancia = 0},
-Auto {color = "negro", velocidad = 120, distancia = 0}]}-}
+Carrera {autos = [Auto {color = "naranja", velocidad = 10, distancia = 25},Auto {color = "rojo", velocidad = 120, distancia = 0},Auto {color = "blanco", velocidad = 
+120, distancia = 0},Auto {color = "azul", velocidad = 120, distancia = 0},Auto {color = "negro", velocidad = 120, distancia = 0}]}-}
 
 
 carrera3 = Carrera [autoE, autoF]
