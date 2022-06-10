@@ -79,8 +79,9 @@ correrDurante tiempo unAuto = unAuto {distancia = distancia unAuto + tiempo*(vel
 
 {--opciones nuevas--}
 
-bajarVelocidad'::Int -> Auto -> Auto
-bajarVelocidad' valor = alterarVelocidad ((-)valor)
+bajarVelocidad''::Cantidad->Auto->Auto
+bajarVelocidad'' cantidad unAuto = alterarVelocidad ((max 0) . (\x->x-cantidad)) unAuto
+
 {--opciones nuevas--}
 
 type Cantidad = Int
@@ -93,6 +94,7 @@ bajarVelocidad::Cantidad->Auto->Auto
 bajarVelocidad cantidad unAuto
   |velocidad(unAuto)>cantidad = alterarVelocidad (\_->velocidad(unAuto)-cantidad) unAuto
   |otherwise = alterarVelocidad (\_->0) unAuto
+
 
 {-----------------------------------------------}
 

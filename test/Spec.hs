@@ -17,3 +17,4 @@ main = hspec $ do
       vaTranquilo autoRojo carreraUno `shouldBe` False
     it "El autoNegro va en el Puesto 3" $ do
       puesto autoNegro carreraUno `shouldBe` 3
+
