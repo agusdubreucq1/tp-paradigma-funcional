@@ -238,36 +238,7 @@ golpeMisil autoGolpeado autoTrigger autosCarrera
 ------------
 {-----------------------------------------------}
 
-{--------------------PRUEBAS--------------------}
------para las pruebas
-autoA = Auto "rojo" 120 20
-autoB= Auto "blanco" 120 15
-autoC = Auto "azul" 120 35
-autoD = Auto "negro" 120 50
-carrera1 = Carrera [autoA, autoB, autoC, autoD]
 
-{-simularCarrera carrera1 [correnTodos 30, usaPowerUp (jetpack 3) "azul", usaPowerUp terremoto "blanco", correnTodos 40,usaPowerUp (miguelitos 20) "blanco", usaPowerUp (jetpack 6) "negro", correnTodos 10] -}
---prueba con funcion usaPowerUp'
-{-simularCarrera carrera1 [correnTodos 30, usaPowerUp' (jetpack 3) "azul", usaPowerUp' terremoto "blanco", correnTodos 40,usaPowerUp' (miguelitos 20) "blanco", usaPowerUp' (jetpack 6) "negro", correnTodos 10]-}
-
---PRUEBA powerUp: misilTeledirigido
-
-carrera2 = Carrera [autoA, autoB, autoC, autoD, autoE]
-autoE = Auto "naranja" 30 20
---aplicarPowerUp (misilTeledirigido "naranja") autoA carrera2
-{-Retornó el siguiente resultado:
-Carrera {autos = [Auto {color = "naranja", velocidad = 10, distancia = 25},Auto {color = "rojo", velocidad = 120, distancia = 0},Auto {color = "blanco", velocidad = 
-120, distancia = 0},Auto {color = "azul", velocidad = 120, distancia = 0},Auto {color = "negro", velocidad = 120, distancia = 0}]}-}
-
-
-carrera3 = Carrera [autoE, autoF]
-autoF = Auto "violeta" 45 15
---aplicarPowerUp (misilTeledirigido "naranja") autoF carrera3
-{-Retornó el siguiente resultado:
-Carrera {autos = [Auto {color = "naranja", velocidad = 10, distancia = 25},Auto {color = "violeta", velocidad = 45, distancia = 15}]}
--}
-
-{-----------------------------------------------}
 
 {-------------------RESPUESTA-------------------}
 
