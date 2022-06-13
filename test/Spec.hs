@@ -8,6 +8,13 @@ autoNegro = Auto "Negro" 120 25
 
 carreraUno = Carrera [autoRojo, autoBlanco, autoAzul, autoNegro]
 
+autoROJO = Auto "Rojo" 40 50
+autoBLANCO= Auto "Blanco" 120 45
+autoAZUL = Auto "Azul" 120 20
+autoNEGRO = Auto "Negro" 120 25
+
+carreraDos = Carrera [autoROJO, autoBLANCO, autoAZUL, autoNEGRO]
+
 autoA = Auto "rojo" 120 20
 autoB= Auto "blanco" 120 15
 autoC = Auto "azul" 120 35
@@ -85,3 +92,18 @@ main = hspec $ do
     it "Auto blanco usa terremoto en carrera1" $ do
         usaPowerUp terremoto "blanco" carrera1 `shouldBe` Carrera{autos=[Auto "rojo" 70 20, Auto "blanco" 120 15,  
                                                                          Auto "azul" 120 35, Auto "negro" 120 50]}
+ describe "punto 5" $ do
+    it "El autoAZUL usa misilTeledirigido para impactar el autoROJO en la carreraDos" $ do
+      aplicarPowerUp (misilTeledirigido "Rojo") autoAZUL carreraDos `shouldBe` Carrera {autos = [Auto 
+                                                              {color = "Rojo", velocidad = 10, distancia = 55},Auto 
+                                                              {color = "Blanco", velocidad = 120, distancia = 45},Auto 
+                                                              {color = "Azul", velocidad = 120, distancia = 20},Auto 
+                                                              {color = "Negro", velocidad = 120, distancia = 25}]}
+
+    it "El autoNEGRO usa misilTeledirigido para impactar el autoAZUL en la carreraDos, y esto no produce ningun cambio" $ do
+      aplicarPowerUp (misilTeledirigido "Azul") autoNEGRO carreraDos `shouldBe` Carrera {autos = [Auto 
+                                                              {color = "Rojo", velocidad = 40, distancia = 50},Auto 
+                                                              {color = "Blanco", velocidad = 120, distancia = 45},Auto 
+                                                              {color = "Azul", velocidad = 120, distancia = 20},Auto 
+                                                              {color = "Negro", velocidad = 120, distancia = 25}]}
+    
