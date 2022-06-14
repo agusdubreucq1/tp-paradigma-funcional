@@ -8,6 +8,13 @@ autoNegro = Auto "Negro" 120 25
 
 carreraUno = Carrera [autoRojo, autoBlanco, autoAzul, autoNegro]
 
+autoROJO = Auto "Rojo" 40 50
+autoBLANCO= Auto "Blanco" 120 45
+autoAZUL = Auto "Azul" 120 20
+autoNEGRO = Auto "Negro" 120 25
+
+carreraDos = Carrera [autoROJO, autoBLANCO, autoAZUL, autoNEGRO]
+
 autoA = Auto "rojo" 120 20
 autoB= Auto "blanco" 120 15
 autoC = Auto "azul" 120 35
