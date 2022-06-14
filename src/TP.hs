@@ -45,10 +45,9 @@ distintoDe elemento1 = not.(elemento1 ==)
 distanciaEntre::Auto->Auto->Int
 distanciaEntre auto1 = abs.(distancia auto1-).distancia
 ---------
-{--opciones nuevas--}
+
 vaTranquilo'::Auto->Carrera->Bool
 vaTranquilo' elAuto carrera = (all (not . estaCerca elAuto) (autos carrera)) && (all (vaGanando elAuto) (todosMenosEse elAuto (autos carrera)))
-{--opciones nuevas--}
 
 --extra 2
 todosMenosEse :: Eq a => a -> [a] -> [a]
@@ -57,10 +56,9 @@ todosMenosEse este = filter (distintoDe este)
 vaGanando::Auto->Auto->Bool
 vaGanando auto1= (distancia auto1>).distancia
 ---------
-{--opciones nuevas--}
+
 puesto'::Auto->Carrera->Int
 puesto' elAuto = (+1).length . filter (flip vaGanando elAuto) . autos 
-{--opciones nuevas--}
 
 {-se arma una lista de todos los autos que le van ganando a elAauto, y a esa cantidad se le suma 1 para obtener el
 puesto del elAuto-}
@@ -72,12 +70,10 @@ puesto del elAuto-}
 correrDurante::Int->Auto->Auto
 correrDurante tiempo unAuto = unAuto {distancia = distancia unAuto + tiempo*(velocidad unAuto)} 
 
-{--opciones nuevas--}
 
 bajarVelocidad::Cantidad->Auto->Auto
 bajarVelocidad cantidad unAuto = alterarVelocidad ((max 0) . (\x->x-cantidad)) unAuto
 
-{--opciones nuevas--}
 
 type Cantidad = Int
 type ModificadorVelocidad = Int->Int
@@ -172,10 +168,6 @@ correnTodos tiempo = Carrera . map (correrDurante tiempo) . autos
 usaPowerUp:: PowerUp -> Color -> Evento
 usaPowerUp power color_auto carrera = Carrera (flip power carrera (autoSegunColor color_auto carrera))
 
-{-Ya existe la funcion aplicarPowerUp-}
-{-aplicarPowerUp::PowerUp->Auto->Carrera->Carrera
-aplicarPowerUp funcionPowerUp autoTrigger carrera = Carrera (funcionPowerUp autoTrigger carrera)-}
-
 
 {-///////////////////////////////////////////////////////////////////////////////-}
 
@@ -188,16 +180,6 @@ autoSegunColor color_auto = head.filter ((color_auto == ). color) . autos
 
 
 {--------------------PARTE 5--------------------}
---misilTeledirigido::Color->PowerUp
---misilTeledirigido colorAuto autoTrigger carrera
---  | velocidad (autoSegunColor colorAuto carrera) < 50 = golpeMisil (autoSegunColor colorAuto carrera) autoTrigger .
---                                                        afectarALosQueCumplen (==autoSegunColor colorAuto carrera) 
---                                                        (alterarVelocidad modificarVelocidad 10) . autos $ carrera
---  | otherwise = autos carrera
- 
------extra 
---modificarVelocidad::Int->Int->Int
---modificarVelocidad _ nuevaVelocidad = nuevaVelocidad
 
 misilTeledirigido::Color->PowerUp
 misilTeledirigido colorAuto autoTrigger carrera
