@@ -218,7 +218,7 @@ misilTeledirigido colorAuto autoTrigger carrera
   | velocidad (autoSegunColor colorAuto carrera) < 50 = golpeMisil (autoSegunColor colorAuto carrera) autoTrigger .
                                                         afectarALosQueCumplen (==autoSegunColor colorAuto carrera) 
                                                         (alterarVelocidad (modificarVelocidad 10)) . autos $ carrera
-  | otherwise = autos carrera
+  | otherwise = golpeMisil (autoSegunColor colorAuto carrera) autoTrigger (autos carrera)
  
 -----extra 
 modificarVelocidad::Cantidad->ModificadorVelocidad

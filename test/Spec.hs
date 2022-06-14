@@ -20,6 +20,13 @@ autoCC = Auto "azul" 120 0
 autoDD = Auto "negro" 120 0
 carreraSimulacion = Carrera [autoAA, autoBB, autoCC, autoDD]
 
+autoA2 = Auto "rojo" 45 20
+autoB2= Auto "blanco" 120 15
+autoC2 = Auto "azul" 50 35
+autoD2 = Auto "negro" 120 50
+carrera2 = Carrera [autoA2, autoB2, autoC2, autoD2]
+
+
 main :: IO ()
 main = hspec $ do
  describe "TP integrador - Punto 1" $ do
@@ -85,3 +92,20 @@ main = hspec $ do
     it "Auto blanco usa terremoto en carrera1" $ do
         usaPowerUp terremoto "blanco" carrera1 `shouldBe` Carrera{autos=[Auto "rojo" 70 20, Auto "blanco" 120 15,  
                                                                          Auto "azul" 120 35, Auto "negro" 120 50]}
+ describe "TP integrador - Punto 5" $ do
+    it "misilTeledirigido a un auto que va ganando y su velocidad es < a 50" $ do
+        usaPowerUp (misilTeledirigido "rojo") "blanco" carrera2 `shouldBe` Carrera{autos=[Auto "rojo" 10 25,
+                                                                         Auto "blanco" 120 15,Auto "azul" 50 35,Auto "negro" 120 50]} 
+    it "misilTeledirigido a un auto que va ganando y su velocidad es > a 50" $ do
+        usaPowerUp (misilTeledirigido "negro") "rojo" carrera2 `shouldBe` Carrera{autos=[Auto "negro" 120 55,Auto "rojo" 45 20,
+                                                                         Auto "blanco" 120 15,Auto "azul" 50 35]}
+    it "misilTeledirigido a un auto que va perdiendo y su velocidad es = 50 " $ do
+        usaPowerUp (misilTeledirigido "azul") "negro" carrera2 `shouldBe` Carrera{autos=[Auto "rojo" 45 20,
+                                                                          Auto "blanco" 120 15,Auto "azul" 50 35,Auto "negro" 120 50]}
+
+
+        
+
+
+
+
