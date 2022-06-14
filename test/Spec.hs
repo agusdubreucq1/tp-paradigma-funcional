@@ -40,9 +40,9 @@ main = hspec $ do
     it "El autoRojo esta cerca del autoBlanco" $ do
       estaCerca autoRojo autoBlanco `shouldBe` True
     it "El autoRojo va tranquilo" $ do
-      vaTranquilo autoRojo carreraUno `shouldBe` False
+      vaTranquilo' autoRojo carreraUno `shouldBe` False
     it "El autoNegro va en el Puesto 3" $ do
-      puesto autoNegro carreraUno `shouldBe` 3
+      puesto' autoNegro carreraUno `shouldBe` 3
  describe "punto 2" $ do
     it "El autoAzul corre durante 30' " $ do
       correrDurante 30 autoAzul `shouldBe` Auto {color = "Azul", velocidad = 120, distancia = 3620}
@@ -52,18 +52,18 @@ main = hspec $ do
       alterarVelocidad (+10) autoAzul `shouldBe` Auto {color = "Azul", velocidad = 130, distancia = 20}
  describe "punto 3" $ do
     it "El autoRojo aplica el powerUp terremoto en la carreraUno" $ do
-      aplicarPowerUp terremoto autoRojo carreraUno `shouldBe` Carrera {autos = [Auto 
+      usaPowerUp terremoto "rojo" carreraUno `shouldBe` Carrera {autos = [Auto 
                                                               {color = "Blanco", velocidad = 70, distancia = 45},Auto 
                                                               {color = "Rojo", velocidad = 120, distancia = 50},Auto 
                                                               {color = "Azul", velocidad = 120, distancia = 20},Auto 
                                                               {color = "Negro", velocidad = 120, distancia = 25}]}
     it "El autoNegro aplica el powerUp jetpack por 30' en la carreraUno" $ do
-      aplicarPowerUp (jetpack 30) autoNegro carreraUno `shouldBe` Carrera {autos = [Auto {color = "Negro", velocidad = 120, distancia = 7225},Auto 
+      usaPowerUp (jetpack 30) "negro" carreraUno `shouldBe` Carrera {autos = [Auto {color = "Negro", velocidad = 120, distancia = 7225},Auto 
                                                                                         {color = "Rojo", velocidad = 120, distancia = 50},Auto 
                                                                                         {color = "Blanco", velocidad = 120, distancia = 45},Auto 
                                                                                         {color = "Azul", velocidad = 120, distancia = 20}]}
     it "El autoNegro aplica el powerUp miguelitos en 40 en la carreraUno" $ do
-      aplicarPowerUp (miguelitos 40) autoNegro carreraUno `shouldBe` Carrera {autos = [Auto {color = "Azul", velocidad = 80, distancia = 20},Auto 
+      usaPowerUp (miguelitos 40) "negro" carreraUno `shouldBe` Carrera {autos = [Auto {color = "Azul", velocidad = 80, distancia = 20},Auto 
                                                                                             {color = "Rojo", velocidad = 120, distancia = 50},Auto 
                                                                                             {color = "Blanco", velocidad = 120, distancia = 45},Auto 
                                                                                             {color = "Negro", velocidad = 120, distancia = 25}]}
@@ -77,10 +77,10 @@ main = hspec $ do
                                                                    InfoPuesto{posicion=3,color_info="negro"},
                                                                    InfoPuesto{posicion=4,color_info="rojo"}]
     it "simularCarrera con funcion usaPowerUp'" $ do
-      simularCarrera carreraSimulacion [correnTodos 30, usaPowerUp' (jetpack 3) "azul", 
-       usaPowerUp' terremoto "blanco", 
-       correnTodos 40,usaPowerUp' (miguelitos 20) "blanco", 
-       usaPowerUp' (jetpack 6) "negro", correnTodos 10] `shouldBe` [InfoPuesto{posicion=1,color_info="azul"},
+      simularCarrera carreraSimulacion [correnTodos 30, usaPowerUp (jetpack 3) "azul", 
+       usaPowerUp terremoto "blanco", 
+       correnTodos 40,usaPowerUp (miguelitos 20) "blanco", 
+       usaPowerUp (jetpack 6) "negro", correnTodos 10] `shouldBe` [InfoPuesto{posicion=1,color_info="azul"},
                                                                    InfoPuesto{posicion=2,color_info="blanco"},
                                                                    InfoPuesto{posicion=3,color_info="negro"},
                                                                    InfoPuesto{posicion=4,color_info="rojo"}]
@@ -90,9 +90,6 @@ main = hspec $ do
     it "Auto rojo usa jetpack 5 en carrera1" $ do
         usaPowerUp (jetpack 5) "rojo" carrera1 `shouldBe` Carrera{autos=[Auto "rojo" 120 1220, Auto "blanco" 120 15, 
                                                                          Auto "azul" 120 35, Auto "negro" 120 50]}
-    it "Auto rojo usa jetpack' 5 en carrera1" $ do
-        usaPowerUp (jetpack' 5) "rojo" carrera1 `shouldBe` Carrera{autos=[Auto "rojo" 120 1220, Auto "blanco" 120 15, 
-                                                                          Auto "azul" 120 35, Auto "negro" 120 50]}
     it "Auto negro usa miguelitos 20 en carrera1" $ do
         usaPowerUp (miguelitos 20) "negro" carrera1 `shouldBe` Carrera{autos=[Auto "rojo" 100 20, Auto "blanco" 100 15,  
                                                                               Auto "azul" 100 35, Auto "negro" 120 50]}
@@ -111,14 +108,14 @@ main = hspec $ do
                                                                           Auto "blanco" 120 15,Auto "azul" 50 35,Auto "negro" 120 50]}
  describe "punto 5" $ do
     it "El autoAZUL usa misilTeledirigido para impactar el autoROJO en la carreraDos" $ do
-      aplicarPowerUp (misilTeledirigido "Rojo") autoAZUL carreraDos `shouldBe` Carrera {autos = [Auto 
+      usaPowerUp (misilTeledirigido "Rojo") "azul" carreraDos `shouldBe` Carrera {autos = [Auto 
                                                               {color = "Rojo", velocidad = 10, distancia = 55},Auto 
                                                               {color = "Blanco", velocidad = 120, distancia = 45},Auto 
                                                               {color = "Azul", velocidad = 120, distancia = 20},Auto 
                                                               {color = "Negro", velocidad = 120, distancia = 25}]}
 
     it "El autoNEGRO usa misilTeledirigido para impactar el autoAZUL en la carreraDos, y esto no produce ningun cambio" $ do
-      aplicarPowerUp (misilTeledirigido "Azul") autoNEGRO carreraDos `shouldBe` Carrera {autos = [Auto 
+      usaPowerUp (misilTeledirigido "Azul") "negro" carreraDos `shouldBe` Carrera {autos = [Auto 
                                                               {color = "Rojo", velocidad = 40, distancia = 50},Auto 
                                                               {color = "Blanco", velocidad = 120, distancia = 45},Auto 
                                                               {color = "Azul", velocidad = 120, distancia = 20},Auto 

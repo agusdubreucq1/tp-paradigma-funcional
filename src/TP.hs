@@ -50,9 +50,6 @@ vaTranquilo'::Auto->Carrera->Bool
 vaTranquilo' elAuto carrera = (all (not . estaCerca elAuto) (autos carrera)) && (all (vaGanando elAuto) (todosMenosEse elAuto (autos carrera)))
 {--opciones nuevas--}
 
-vaTranquilo::Auto->Carrera->Bool
-vaTranquilo elAuto carrera = not(all (estaCerca elAuto) (autos carrera)) && (all (vaGanando elAuto) (autos carrera))
-
 --extra 2
 todosMenosEse :: Eq a => a -> [a] -> [a]
 todosMenosEse este = filter (distintoDe este)
@@ -65,8 +62,6 @@ puesto'::Auto->Carrera->Int
 puesto' elAuto = (+1).length . filter (flip vaGanando elAuto) . autos 
 {--opciones nuevas--}
 
-puesto::Auto->Carrera->Int
-puesto elAuto carrera = (1 +).length.flip(filter) (autos carrera).flip vaGanando $ elAuto
 {-se arma una lista de todos los autos que le van ganando a elAauto, y a esa cantidad se le suma 1 para obtener el
 puesto del elAuto-}
 
@@ -79,8 +74,8 @@ correrDurante tiempo unAuto = unAuto {distancia = distancia unAuto + tiempo*(vel
 
 {--opciones nuevas--}
 
-bajarVelocidad''::Cantidad->Auto->Auto
-bajarVelocidad'' cantidad unAuto = alterarVelocidad ((max 0) . (\x->x-cantidad)) unAuto
+bajarVelocidad::Cantidad->Auto->Auto
+bajarVelocidad cantidad unAuto = alterarVelocidad ((max 0) . (\x->x-cantidad)) unAuto
 
 {--opciones nuevas--}
 
@@ -90,10 +85,10 @@ type ModificadorVelocidad = Int->Int
 alterarVelocidad::ModificadorVelocidad->Auto->Auto
 alterarVelocidad modificador unAuto = unAuto {velocidad = modificador (velocidad unAuto)}
 
-bajarVelocidad::Cantidad->Auto->Auto
+{-bajarVelocidad::Cantidad->Auto->Auto
 bajarVelocidad cantidad unAuto
   |velocidad(unAuto)>cantidad = alterarVelocidad (\_->velocidad(unAuto)-cantidad) unAuto
-  |otherwise = alterarVelocidad (\_->0) unAuto
+  |otherwise = alterarVelocidad (\_->0) unAuto-}
 
 
 {-----------------------------------------------}
@@ -102,8 +97,8 @@ bajarVelocidad cantidad unAuto
 
 type PowerUp = Auto->Carrera->[Auto]
 
-aplicarPowerUp::PowerUp->Auto->Carrera->Carrera
-aplicarPowerUp funcionPowerUp autoTrigger carrera = Carrera (funcionPowerUp autoTrigger carrera)
+{--aplicarPowerUp::PowerUp->Auto->Carrera->Carrera
+aplicarPowerUp funcionPowerUp autoTrigger carrera = Carrera (funcionPowerUp autoTrigger carrera)--}
 
 terremoto::PowerUp
 terremoto autoTrigger = afectarALosQueCumplen (estaCerca autoTrigger) (bajarVelocidad 50).autos
@@ -112,23 +107,17 @@ miguelitos::Int->PowerUp
 miguelitos cantidadABajar autoTrigger = (afectarALosQueCumplen (vaGanando autoTrigger)
                                          (bajarVelocidad cantidadABajar)).autos 
 
-jetpack::Tiempo->PowerUp
-jetpack tiempo autoTrigger carrera = afectarALosQueCumplen (==autoTrigger) 
-                                    (flip(bonusJetpack) tiempo)
-                                    (autos carrera)
+
 {--opciones nuevas--}
-jetpack'::Tiempo->PowerUp
-jetpack' tiempo autoTrigger = afectarALosQueCumplen (==autoTrigger) 
+jetpack::Tiempo->PowerUp
+jetpack tiempo autoTrigger = afectarALosQueCumplen (==autoTrigger) 
                                     (alterarVelocidad (`div` 2) . correrDurante tiempo . alterarVelocidad (*2)) . autos
 {--opciones nuevas--}
 
 --extra 3                                 
 type Tiempo = Int
 type Distancia = Int
-bonusJetpack::Auto->Tiempo->Auto
-bonusJetpack autoAfectado tiempo = alterarVelocidad (\_->velocidad(autoAfectado)) .
-                                    correrDurante tiempo .          
-                                      alterarVelocidad (\_->2*(velocidad autoAfectado)) $ autoAfectado
+
 
 alterarDistancia::Distancia->Auto->Auto
 alterarDistancia distanciaAgregada unAuto = unAuto {distancia = distancia unAuto + distanciaAgregada}
@@ -172,7 +161,7 @@ crearTabla carrera = map (infoPuestoSegunAuto carrera) (autos carrera)
 InfoPuesto (posicion y color de cada auto)-}
 
 infoPuestoSegunAuto:: Carrera -> Auto -> InfoPuesto
-infoPuestoSegunAuto carrera auto = InfoPuesto (puesto auto carrera) (color auto)
+infoPuestoSegunAuto carrera auto = InfoPuesto (puesto' auto carrera) (color auto)
 ----------
 
 
@@ -187,9 +176,6 @@ usaPowerUp power color_auto carrera = Carrera (flip power carrera (autoSegunColo
 {-aplicarPowerUp::PowerUp->Auto->Carrera->Carrera
 aplicarPowerUp funcionPowerUp autoTrigger carrera = Carrera (funcionPowerUp autoTrigger carrera)-}
 
---segunda opcion:
-usaPowerUp':: PowerUp -> Color -> Evento
-usaPowerUp' power color_auto carrera = aplicarPowerUp power (autoSegunColor color_auto carrera) carrera
 
 {-///////////////////////////////////////////////////////////////////////////////-}
 
