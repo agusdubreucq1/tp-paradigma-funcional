@@ -109,8 +109,20 @@ main = hspec $ do
     it "misilTeledirigido a un auto que va perdiendo y su velocidad es = 50 " $ do
         usaPowerUp (misilTeledirigido "azul") "negro" carrera2 `shouldBe` Carrera{autos=[Auto "rojo" 45 20,
                                                                           Auto "blanco" 120 15,Auto "azul" 50 35,Auto "negro" 120 50]}
+ describe "punto 5" $ do
+    it "El autoAZUL usa misilTeledirigido para impactar el autoROJO en la carreraDos" $ do
+      aplicarPowerUp (misilTeledirigido "Rojo") autoAZUL carreraDos `shouldBe` Carrera {autos = [Auto 
+                                                              {color = "Rojo", velocidad = 10, distancia = 55},Auto 
+                                                              {color = "Blanco", velocidad = 120, distancia = 45},Auto 
+                                                              {color = "Azul", velocidad = 120, distancia = 20},Auto 
+                                                              {color = "Negro", velocidad = 120, distancia = 25}]}
 
-
+    it "El autoNEGRO usa misilTeledirigido para impactar el autoAZUL en la carreraDos, y esto no produce ningun cambio" $ do
+      aplicarPowerUp (misilTeledirigido "Azul") autoNEGRO carreraDos `shouldBe` Carrera {autos = [Auto 
+                                                              {color = "Rojo", velocidad = 40, distancia = 50},Auto 
+                                                              {color = "Blanco", velocidad = 120, distancia = 45},Auto 
+                                                              {color = "Azul", velocidad = 120, distancia = 20},Auto 
+                                                              {color = "Negro", velocidad = 120, distancia = 25}]}
         
 
 
